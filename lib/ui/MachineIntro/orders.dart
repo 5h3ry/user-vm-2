@@ -405,12 +405,9 @@ class _OrderPageState extends State<OrderPage> {
  */
 
 
-import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/MachineIntro/cart_page.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
@@ -430,7 +427,6 @@ class _OrderPageState extends State<OrderPage> {
   late Future<List<Map<String, dynamic>>> _selectedItemsFuture;
   late SharedPreferences _prefs; // Add SharedPreferences instance
   final fireStore = FirebaseFirestore.instance.collection('Orders');
-  final ScreenshotController screenshotController = ScreenshotController();
 
   bool loading = false;
 
@@ -445,35 +441,7 @@ class _OrderPageState extends State<OrderPage> {
   }
 
 
-  Future<void> saveQRCodeToGallery(String qrData) async {
-    try {
-      // Capture QR code as an image
-      final Uint8List imageBytes = await screenshotController.captureFromWidget(
-        QrImageView(
-          data: qrData,
-          version: QrVersions.auto,
-          size: 200.0,
-        ),
-      );
 
-      // Save the image to the gallery
-      final result = await ImageGallerySaver.saveImage(imageBytes);
-      if (result["isSuccess"]) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('QR code saved to gallery')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save QR code')),
-        );
-      }
-    } catch (e) {
-      print('Error saving QR code: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving QR code')),
-      );
-    }
-  }
   // Method to initialize SharedPreferences
   _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
@@ -765,7 +733,7 @@ class _OrderPageState extends State<OrderPage> {
       ),
     );
   }
-/*
+
   void addSubCollection() async {
     String subDocId = DateTime.now().millisecondsSinceEpoch.toString();
 
@@ -790,50 +758,11 @@ class _OrderPageState extends State<OrderPage> {
       ...itemsData,
       'id': subDocId,
     });
-   // saveQRCodeToGallery(qrData);
+
     // Generate the QR code with the machineId and subDocId
     _generateQRCode(widget.machineId, subDocId, itemQuantities);
   }
 
- */
-  void addSubCollection() async {
-    String subDocId = DateTime.now().millisecondsSinceEpoch.toString();
 
-    await fireStore.doc(subDocId).set({
-      'fulfilled': false,
-      'id': subDocId,
-    });
-
-    // Prepare the data for the items sub-collection
-    Map<String, String> itemsData = {};
-    itemQuantities.forEach((itemId, quantity) {
-      itemsData[itemId] = quantity;
-    });
-
-    // Add item data to Firestore
-    await FirebaseFirestore.instance
-        .collection('Orders')
-        .doc(subDocId)
-        .collection('items')
-        .doc(subDocId)
-        .set({
-      ...itemsData,
-      'id': subDocId,
-    });
-
-    // Generate the QR code data
-    String qrData = 'Machine ID: ${widget.machineId}\n';
-    qrData += 'Order ID: $subDocId\n';
-    qrData += 'Items:\n';
-    itemQuantities.forEach((itemId, quantity) {
-      qrData += '  $itemId: $quantity\n';
-    });
-
-    // Save the QR code to the gallery
-    saveQRCodeToGallery(qrData);
-
-    // Generate the QR code dialog
-    _generateQRCode(widget.machineId, subDocId, itemQuantities);
-  }
 
 }
