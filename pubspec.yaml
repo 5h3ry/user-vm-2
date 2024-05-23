@@ -45,7 +45,6 @@ dependencies:
   shared_preferences: ^2.0.8
   sqflite: ^2.0.0+4
   badges: ^3.1.2
-
   carousel_slider: ^4.0.0
   autocomplete_textfield: ^2.0.1
   cached_network_image: ^3.3.0
@@ -54,6 +53,7 @@ dependencies:
   provider: ^5.0.0
   qr_flutter: ^4.0.0
   image_picker: ^0.8.4+4
+  permission_handler: ^10.2.0
 
 
 dev_dependencies:
