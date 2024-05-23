@@ -9,7 +9,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:vending_app/ui/Pages/ProfilePage.dart';
 import 'package:flutter/rendering.dart';
 
-
 class OrderPage extends StatefulWidget {
   final List<String> selectedIds;
   final String machineId;
@@ -26,6 +25,12 @@ class _OrderPageState extends State<OrderPage> {
   final GlobalKey _globalKey = GlobalKey();
   bool loading = false;
 
+
+
+
+  Future<void> initializeSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
   Map<String, String> itemQuantities = {};
   double totalBill = 0.0;
 
@@ -34,9 +39,9 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     _selectedItemsFuture = _fetchSelectedItems();
     _initSharedPreferences(); // Initialize SharedPreferences
+    initializeSharedPreferences();
+
   }
-
-
 
   // Method to initialize SharedPreferences
   _initSharedPreferences() async {
@@ -239,11 +244,11 @@ class _OrderPageState extends State<OrderPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: "My Orders",
+            label: "Order Summary",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
+            icon: Icon(Icons.backpack),
+            label: "Last Order",
           ),
         ],
       ),
@@ -296,10 +301,62 @@ class _OrderPageState extends State<OrderPage> {
   void onOrdersTapped() {}
 
   void onProfileTapped() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfilePage()));
-  }
+    // Ensure SharedPreferences has been initialized
+    if (_prefs == null) {
+      return;
+    }
 
-  void _generateQRCode(String machineId, String subDocId, Map<String, String> itemQuantities) {
+    // Retrieve QR code data from SharedPreferences
+    String? qrData = _prefs!.getString('qrData');
+
+    if (qrData != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
+        builder: (_) => AlertDialog(
+          content: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {}, // Prevent dialog from closing when tapped
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Scan the QR code to proceed.',
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentIndex = 2; // Set currentIndex to 0
+                    });
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      // If QR data is not found, show a message or handle accordingly
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text('No QR code found. Please generate one first.'),
+        ),
+      );
+    }
+  }
+/*
+  void _generateQRCode(String machineId, String subDocId, Map<String, String> itemQuantities) async {
     // Generate QR code with machineId, subDocId, and itemIds with quantities
     String qrData = 'Machine ID: $machineId\n';
     qrData += 'Order ID: $subDocId\n';
@@ -307,6 +364,9 @@ class _OrderPageState extends State<OrderPage> {
     itemQuantities.forEach((itemId, quantity) {
       qrData += '  $itemId: $quantity\n';
     });
+
+    // Save QR code data to SharedPreferences
+    await _prefs.setString('qrData', qrData);
 
     showDialog(
       context: context,
@@ -331,8 +391,62 @@ class _OrderPageState extends State<OrderPage> {
   }
 
 
+ */
+  void _generateQRCode(String machineId, String subDocId, Map<String, String> itemQuantities) async {
+    // Generate QR code with machineId, subDocId, and itemIds with quantities
+    setState(() {
+      _currentIndex=3;
+    });
+    String qrData = 'Machine ID: $machineId\n';
+    qrData += 'Order ID: $subDocId\n';
+    qrData += 'Items:\n';
+    itemQuantities.forEach((itemId, quantity) {
+      qrData += '  $itemId: $quantity\n';
+    });
 
+    // Save QR code data to SharedPreferences
+    await _prefs.setString('qrData', qrData);
 
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
+
+      builder: (_) => AlertDialog(
+
+        content: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {}, // Prevent dialog from closing when tapped
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              QrImageView(
+                data: qrData,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+
+              SizedBox(height: 20),
+              Text(
+                'Scan the QR code to proceed.',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => SelectMachineForItems()),
+                  );
+                },
+                child: Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   void addSubCollection() async {
     String subDocId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -362,10 +476,4 @@ class _OrderPageState extends State<OrderPage> {
     // Generate the QR code with the machineId and subDocId
     _generateQRCode(widget.machineId, subDocId, itemQuantities);
   }
-
-
-
 }
-
-
-

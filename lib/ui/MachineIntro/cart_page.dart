@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/MachineIntro/orders.dart';
 import 'package:vending_app/ui/Pages/ProfilePage.dart';
 import 'select_machine_for_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class CartPage extends StatefulWidget {
   final List<String> selectedIds;
@@ -22,12 +24,20 @@ class _CartPageState extends State<CartPage> {
 
   Map<String, String> itemQuantities = {};
   double totalBill = 0.0;
+  //SharedPreferences? _prefs;
 
+
+
+  Future<void> initializeSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
   @override
   void initState() {
     super.initState();
     _selectedItemsFuture = _fetchSelectedItems();
     _initSharedPreferences(); // Initialize SharedPreferences
+    initializeSharedPreferences();
+
   }
 
   // Method to initialize SharedPreferences
@@ -63,6 +73,41 @@ class _CartPageState extends State<CartPage> {
       }
     });
     return selectedItemsData;
+  }
+
+  Future<void> displayQRCode(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? qrData = prefs.getString('qrData');
+
+    if (qrData != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              QrImageView(
+                data: qrData,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Scan the QR code to proceed.',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text('No QR code found. Please generate one first.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -102,50 +147,7 @@ class _CartPageState extends State<CartPage> {
                        String itemId = widget.selectedIds[index];
                        int quantity = int.parse(itemQuantities[itemId] ?? '1');
                        String imageUrl = itemData['imageUrl'] ?? '';
-                      // double price = double.parse(itemData['price'].toString());
-                      // double itemTotal = price * quantity;
-                      // totalBill += itemTotal;
-                      /*
-                       return ListTile(
-                        leading: imageUrl.isNotEmpty ? Image.network(imageUrl) : SizedBox(),
-                        title: Text(itemData['itemName'],
-                            style: const TextStyle(fontWeight: FontWeight.bold,
-                                fontSize: 16),),
-                        subtitle: Row(
-                          children: <Widget>[
-                            Text('Price: ${itemData['price']}\nQuantity: ${itemData['quantity']}'),
-                            SizedBox(width: 60),
-                            IconButton(
-                              icon: Icon(Icons.remove),
-                              onPressed: () {
-                                setState(() {
-                                  if (quantity > 1) {
-                                    quantity--;
-                                    itemQuantities[itemId] = quantity.toString();
-                                    _prefs.setString(itemId, quantity.toString()); // Update quantity in SharedPreferences
-                                  }
-                                });
-                              },
-                            ),
-                            Text('$quantity'),
-                            IconButton(
-                              icon: Icon(Icons.add),
-                              onPressed: () {
-                                setState(() {
-                                  if (quantity < int.parse(itemData['quantity'])) {
-                                    quantity++;
-                                    itemQuantities[itemId] = quantity.toString();
-                                    _prefs.setString(itemId, quantity.toString()); // Update quantity in SharedPreferences
-                                  }
-                                });
-                              },
-                            ),
 
-                          ],
-                        ),
-                      );
-
-                       */
                        return Card(
                          elevation: 3,
                          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -324,11 +326,11 @@ class _CartPageState extends State<CartPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: "My Orders",
+            label: "Order Summary",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
+            icon: Icon(Icons.backpack),
+            label: "Last Order",
           ),
         ],
       ),
@@ -373,10 +375,60 @@ class _CartPageState extends State<CartPage> {
     Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>OrderPage(selectedIds: widget.selectedIds , machineId: widget.machineId,) ),);
 
   }
-
   void onProfileTapped() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+    // Ensure SharedPreferences has been initialized
+    if (_prefs == null) {
+      return;
+    }
 
+    // Retrieve QR code data from SharedPreferences
+    String? qrData = _prefs!.getString('qrData');
+
+    if (qrData != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
+        builder: (_) => AlertDialog(
+          content: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {}, // Prevent dialog from closing when tapped
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Scan the QR code to proceed.',
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentIndex = 1; // Set currentIndex to 0
+                    });
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      // If QR data is not found, show a message or handle accordingly
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text('No QR code found. Please generate one first.'),
+        ),
+      );
+    }
   }
 
 }

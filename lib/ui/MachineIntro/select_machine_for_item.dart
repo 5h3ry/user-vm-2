@@ -2,11 +2,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/Drawer/drawer_side.dart';
 import 'package:vending_app/ui/MachineIntro/item_list_screen.dart';
-import 'package:vending_app/ui/Pages/ProfilePage.dart';
-import 'package:vending_app/ui/auth/login_screen.dart';
-import 'package:vending_app/utils/utils.dart';
+
 
 class SelectMachineForItems extends StatefulWidget {
   const SelectMachineForItems({Key? key});
@@ -18,8 +18,52 @@ class SelectMachineForItems extends StatefulWidget {
 class _SelectMachineForItemsState extends State<SelectMachineForItems> {
   final auth = FirebaseAuth.instance;
   final searchController = TextEditingController();
-  final fireStore = FirebaseFirestore.instance.collection('Machines')
-      .snapshots();
+  final fireStore = FirebaseFirestore.instance.collection('Machines').snapshots();
+  SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeSharedPreferences();
+  }
+
+  Future<void> initializeSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+  Future<void> displayQRCode(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? qrData = prefs.getString('qrData');
+
+    if (qrData != null) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              QrImageView(
+                data: qrData,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Scan the QR code to proceed.',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text('No QR code found. Please generate one first.'),
+        ),
+      );
+    }
+  }
 
   String getMachineId(DocumentSnapshot doc) {
     return doc['id'].toString();
@@ -182,11 +226,11 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: "My Orders",
+            label: "Order Summary",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: "Profile",
+            icon: Icon(Icons.backpack),
+            label: "Last Order",
           ),
         ],
       ),
@@ -221,26 +265,34 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
     Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => SelectMachineForItems()));
   }
-
   void onCartTapped() {
     showDialog(
       context: context,
+      barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Select a Machine"),
-          content: Text(
-              "Please select a machine before proceeding to the cart."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _currentIndex = 0;
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
+        return WillPopScope(
+          // Handle Android system back button
+          onWillPop: () async {
+            setState(() {
+              _currentIndex = 0; // Set currentIndex to 0
+            });
+            return true; // Allow dialog to be closed
+          },
+          child: AlertDialog(
+            title: Text("Select a Machine"),
+            content: Text("Please select a machine before proceeding to the cart."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _currentIndex = 0; // Set currentIndex to 0
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -249,30 +301,90 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
   void onOrdersTapped() {
     showDialog(
       context: context,
+      barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Select a Machine"),
-          content: Text(
-              "Please select a machine before proceeding to the Order."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _currentIndex = 0;
-                });
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
+        return WillPopScope(
+          // Handle Android system back button
+          onWillPop: () async {
+            setState(() {
+              _currentIndex = 0; // Set currentIndex to 0
+            });
+            return true; // Allow dialog to be closed
+          },
+          child: AlertDialog(
+            title: Text("Select a Machine"),
+            content: Text("Please select a machine before proceeding to the Order."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _currentIndex = 0; // Set currentIndex to 0
+                  });
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
   void onProfileTapped() {
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => ProfilePage()));
+    // Ensure SharedPreferences has been initialized
+    if (_prefs == null) {
+      return;
+    }
+
+    // Retrieve QR code data from SharedPreferences
+    String? qrData = _prefs!.getString('qrData');
+
+    if (qrData != null) {
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
+        builder: (_) => AlertDialog(
+          content: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {}, // Prevent dialog from closing when tapped
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Scan the QR code to proceed.',
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentIndex = 0; // Set currentIndex to 0
+                    });
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: Text('Close'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      // If QR data is not found, show a message or handle accordingly
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          content: Text('No QR code found. Please generate one first.'),
+        ),
+      );
+    }
   }
 
   Widget buildMachineCard(String machineName, String location, String imageUrl,
@@ -303,14 +415,15 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
           ),
         )
             : Container(
-          width: 80,
-          height: 80,
-          color: Colors.grey[300],
-          child: Center(
-            child: Icon(
-              Icons.image,
-              color: Colors.grey[600],
-              size: 40,
+             width: 80,
+             height: 80,
+             color: Colors.grey[300],
+
+               child: Center(
+                  child: Icon(
+                Icons.image,
+                color: Colors.grey[600],
+                size: 40,
             ),
           ),
         ),
