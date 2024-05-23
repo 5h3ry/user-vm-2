@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/MachineIntro/cart_page.dart';
+import 'package:vending_app/ui/MachineIntro/payment.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:vending_app/ui/Pages/ProfilePage.dart';
@@ -206,7 +207,12 @@ class _OrderPageState extends State<OrderPage> {
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    addSubCollection(); // Call addSubCollection to handle everything including QR code generation
+                    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>PaymentPage() ),);
+
+
+
+
+                   // addSubCollection(); // Call addSubCollection to handle everything including QR code generation
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Background color
