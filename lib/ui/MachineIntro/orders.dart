@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/MachineIntro/cart_page.dart';
-import 'package:vending_app/ui/MachineIntro/payment.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:vending_app/ui/Pages/ProfilePage.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+
+
 
 class OrderPage extends StatefulWidget {
   final List<String> selectedIds;
@@ -19,12 +20,19 @@ class OrderPage extends StatefulWidget {
   _OrderPageState createState() => _OrderPageState();
 }
 
-class _OrderPageState extends State<OrderPage> {
+class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animation;
   late Future<List<Map<String, dynamic>>> _selectedItemsFuture;
   late SharedPreferences _prefs; // Add SharedPreferences instance
   final fireStore = FirebaseFirestore.instance.collection('Orders');
   final GlobalKey _globalKey = GlobalKey();
   bool loading = false;
+  final _formKey = GlobalKey<FormState>();
+  final _cardNumberController = TextEditingController();
+  final _expiryDateController = TextEditingController();
+  final _cvvController = TextEditingController();
+  final _cardHolderNameController = TextEditingController();
 
 
 
@@ -41,9 +49,26 @@ class _OrderPageState extends State<OrderPage> {
     _selectedItemsFuture = _fetchSelectedItems();
     _initSharedPreferences(); // Initialize SharedPreferences
     initializeSharedPreferences();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
 
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
   }
-
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _cardNumberController.dispose();
+    _expiryDateController.dispose();
+    _cvvController.dispose();
+    _cardHolderNameController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
   // Method to initialize SharedPreferences
   _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
@@ -61,6 +86,294 @@ class _OrderPageState extends State<OrderPage> {
       }
     }
   }
+  void _showPaymentDoneAnimation() {
+    if (_animationController.isAnimating || _animationController.isCompleted) {
+      _animationController.reset();
+    }
+
+    _animationController.forward();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: ScaleTransition(
+            scale: _animation,
+            child: Container(
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_circle, size: 80.0, color: Colors.green),
+                  SizedBox(height: 20),
+                  Text(
+                    'Payment Done',
+                    style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.of(context).pop();
+        _animationController.reset();
+      }
+      Navigator.of(context).pop(); // Close the modal
+      addSubCollection();
+    });
+
+  }
+
+  void _showPaymentForm(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.6,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            builder: (_, controller) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                padding: EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  controller: controller,
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the modal
+                            },
+                          ),
+                          Text(
+                            'Payment Form',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(width: 40), // Placeholder for cross button alignment
+                        ],
+                      ),
+                      SizedBox(height: 30.0),
+
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: <Widget>[
+                            TextFormField(
+                              controller: _cardNumberController,
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                labelText: 'Card Number',
+                                labelStyle: TextStyle(color: Colors.white),
+                                hintText: '1234 5678 9012 3456',
+                                hintStyle: TextStyle(color: Colors.white38),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.black54,
+                              ),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(16),
+                                _CardNumberInputFormatter(),
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your card number';
+                                } else if (value.replaceAll(' ', '').length != 16) {
+                                  return 'Card number must be 16 digits';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 16.0),
+                            Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _expiryDateController,
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      labelText: 'Expiry Date',
+                                      labelStyle: TextStyle(color: Colors.white),
+                                      hintText: 'MM/YY',
+                                      hintStyle: TextStyle(color: Colors.white38),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.white),
+                                        borderRadius: BorderRadius.circular(12.0),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.black54,
+                                    ),
+                                    keyboardType: TextInputType.datetime,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      _ExpiryDateInputFormatter(),
+                                      LengthLimitingTextInputFormatter(5),
+                                    ],
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter the expiry date';
+                                      } else if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(value)) {
+                                        return 'Enter a valid expiry date';
+                                      }
+
+                                      var parts = value.split('/');
+                                      var month = int.tryParse(parts[0]);
+                                      var year = int.tryParse(parts[1]);
+
+                                      if (month == null || year == null) {
+                                        return 'Invalid expiry date format';
+                                      }
+
+                                      if (month < 1 || month > 12) {
+                                        return 'Invalid';
+                                      }
+
+                                      if (year <= 23) {
+                                        return 'Invalid';
+                                      }
+
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                                SizedBox(width: 16.0),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: _cvvController,
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      labelText: 'CVV',
+                                      labelStyle: TextStyle(color: Colors.white),
+                                      hintText: '123',
+                                      hintStyle: TextStyle(color: Colors.white38),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12.0),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.white),
+                                        borderRadius: BorderRadius.circular(12.0),
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.black54,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.digitsOnly,
+                                      LengthLimitingTextInputFormatter(3),
+                                    ],
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter the CVV';
+                                      } else if (value.length != 3) {
+                                        return 'CVV must be 3 digits';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16.0),
+                            TextFormField(
+                              controller: _cardHolderNameController,
+                              style: TextStyle(color: Colors.white),
+                              decoration: InputDecoration(
+                                labelText: 'Card Holder Name',
+                                labelStyle: TextStyle(color: Colors.white),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.black54,
+                              ),
+                              keyboardType: TextInputType.name,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter the card holder\'s name';
+                                } else if (!RegExp(r'^[a-zA-Z\s]{3,24}$').hasMatch(value)) {
+                                  return 'Invalid Name';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 30.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState?.validate() ?? false) {
+                                  if (_animationController.isAnimating || _animationController.isCompleted) {
+                                    _animationController.reset();
+                                  }
+                                  _showPaymentDoneAnimation();
+                                }
+                              },
+                              child: Text(
+                                'Pay Rs.${totalBill.toStringAsFixed(2)}',
+                                style: TextStyle(fontSize: 18.0, color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
+                                backgroundColor: Colors.teal,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 30.0),
+                    ],
+                  ),
+
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
 
   Future<List<Map<String, dynamic>>> _fetchSelectedItems() async {
     List<Map<String, dynamic>> selectedItemsData = [];
@@ -207,8 +520,9 @@ class _OrderPageState extends State<OrderPage> {
                 SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>PaymentPage() ),);
+                  //  Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>PaymentPage() ),);
 
+                    _showPaymentForm(context);
 
 
 
@@ -223,7 +537,7 @@ class _OrderPageState extends State<OrderPage> {
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
                   ),
                   child: Text(
-                    'QR Generator',
+                    'PAY',
                     style: TextStyle(fontSize: 18, color: Colors.white), // Text style
                   ),
                 ),
@@ -481,5 +795,66 @@ class _OrderPageState extends State<OrderPage> {
 
     // Generate the QR code with the machineId and subDocId
     _generateQRCode(widget.machineId, subDocId, itemQuantities);
+  }
+}
+class _CardNumberInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text;
+
+    text = text.replaceAll(RegExp(r'\D'), '');
+
+    if (text.length > 16) {
+      text = text.substring(0, 16);
+    }
+
+    var newText = '';
+    for (var i = 0; i < text.length; i += 4) {
+      if (i != 0) {
+        newText += ' ';
+      }
+      if (i + 4 <= text.length) {
+        newText += text.substring(i, i + 4);
+      } else {
+        newText += text.substring(i);
+      }
+    }
+
+    return newValue.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(
+        offset: newText.length,
+      ),
+    );
+  }
+}
+
+class _ExpiryDateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text;
+
+    text = text.replaceAll(RegExp(r'\D'), '');
+
+    if (text.length > 4) {
+      text = text.substring(0, 4);
+    }
+
+    var newText = '';
+    for (var i = 0; i < text.length; i++) {
+      if (i == 2) {
+        newText += '/';
+      }
+      newText += text[i];
+    }
+
+    return newValue.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(
+        offset: newText.length,
+      ),
+    );
   }
 }
