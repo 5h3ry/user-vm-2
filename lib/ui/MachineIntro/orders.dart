@@ -66,7 +66,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
     _expiryDateController.dispose();
     _cvvController.dispose();
     _cardHolderNameController.dispose();
-    _animationController.dispose();
+   // _animationController.dispose();
     super.dispose();
   }
   // Method to initialize SharedPreferences
@@ -86,6 +86,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
       }
     }
   }
+
   void _showPaymentDoneAnimation() {
     if (_animationController.isAnimating || _animationController.isCompleted) {
       _animationController.reset();
@@ -524,8 +525,6 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
 
                     _showPaymentForm(context);
 
-
-
                    // addSubCollection(); // Call addSubCollection to handle everything including QR code generation
                   },
                   style: ElevatedButton.styleFrom(
@@ -537,7 +536,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
                   ),
                   child: Text(
-                    'PAY',
+                    'PAY NOW',
                     style: TextStyle(fontSize: 18, color: Colors.white), // Text style
                   ),
                 ),
@@ -675,43 +674,6 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
       );
     }
   }
-/*
-  void _generateQRCode(String machineId, String subDocId, Map<String, String> itemQuantities) async {
-    // Generate QR code with machineId, subDocId, and itemIds with quantities
-    String qrData = 'Machine ID: $machineId\n';
-    qrData += 'Order ID: $subDocId\n';
-    qrData += 'Items:\n';
-    itemQuantities.forEach((itemId, quantity) {
-      qrData += '  $itemId: $quantity\n';
-    });
-
-    // Save QR code data to SharedPreferences
-    await _prefs.setString('qrData', qrData);
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            QrImageView(
-              data: qrData,
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Scan the QR code to proceed.',
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
- */
   void _generateQRCode(String machineId, String subDocId, Map<String, String> itemQuantities) async {
     // Generate QR code with machineId, subDocId, and itemIds with quantities
     setState(() {
@@ -754,9 +716,11 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context); // Close the dialog
+                  resetAndClearSelectedIds(machineId);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => SelectMachineForItems()),
+
                   );
                 },
                 child: Text('Close'),
@@ -796,7 +760,24 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
     // Generate the QR code with the machineId and subDocId
     _generateQRCode(widget.machineId, subDocId, itemQuantities);
   }
+
+  Future<void> resetAndClearSelectedIds(String machineId) async {
+    // Reset selected item IDs and quantities
+    for (String id in widget.selectedIds) {
+      await _prefs.remove(id);
+    }
+    setState(() {
+      itemQuantities.clear();
+      totalBill = 0.0;
+    });
+
+    // Clear the selected IDs for the specified machine
+    await _prefs.remove(machineId);
+  }
+
+
 }
+
 class _CardNumberInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

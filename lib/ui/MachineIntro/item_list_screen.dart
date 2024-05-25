@@ -48,7 +48,6 @@ class _ItemListScreenState extends State<ItemListScreen> {
       });
     }
   }
-
   _saveSelectedItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(widget.machineId, selectedIds);
@@ -309,7 +308,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
     });
     _saveSelectedItems();
   }
-
+/*
   List<Widget> buildListTilesFromSubcollection(QuerySnapshot querySnapshot) {
     return querySnapshot.docs.map((doc) {
       var data = doc.data() as Map<String, dynamic>?;
@@ -392,4 +391,91 @@ class _ItemListScreenState extends State<ItemListScreen> {
       }
     }).toList();
   }
+
+ */
+  List<Widget> buildListTilesFromSubcollection(QuerySnapshot querySnapshot) {
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data() as Map<String, dynamic>?;
+
+      if (data != null) {
+        String id = doc.id;
+        String itemName = data['itemName'] ?? '';
+        String price = data['price'] ?? '';
+        String quantity = data['quantity'] ?? '';
+        String imageUrl = data['imageUrl'] ?? '';
+        bool isSelected = selectedIds.contains(id);
+
+        bool isQuantityZero = quantity == '0';
+
+        return Card(
+          elevation: 3,
+          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          child: ListTile(
+            contentPadding: EdgeInsets.all(14),
+            leading: imageUrl.isNotEmpty
+                ? Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: Colors.black),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 3,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(5.0),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: 60,
+                  height: 100,
+                ),
+              ),
+            )
+                : SizedBox(width: 80, height: 80),
+            title: Text(
+              itemName,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+            subtitle: Text(
+              'Price: $price\nQuantity: $quantity',
+              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+            ),
+            trailing: ElevatedButton(
+              onPressed: isQuantityZero ? null : () {
+                addToCart(id);
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                  isQuantityZero ? Colors.grey : (isSelected ? Colors.red : Colors.green),
+                ),
+                textStyle: MaterialStateProperty.all<TextStyle>(
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                shape: MaterialStateProperty.all<OutlinedBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                  EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                ),
+              ),
+              child: Text(
+                isSelected ? 'Remove from Cart' : 'Add to Cart',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        );
+      } else {
+        return SizedBox();
+      }
+    }).toList();
+  }
+
+
 }
