@@ -720,10 +720,10 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => SelectMachineForItems()),
-
                   );
                 },
                 child: Text('Close'),
+
               ),
             ],
           ),
