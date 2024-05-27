@@ -1,20 +1,18 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/MachineIntro/orders.dart';
-import 'package:vending_app/ui/Pages/ProfilePage.dart';
 import 'select_machine_for_item.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class CartPage extends StatefulWidget {
   final List<String> selectedIds;
   final String machineId;
 
-  CartPage({required this.selectedIds, required this.machineId});
+  const CartPage({super.key, required this.selectedIds, required this.machineId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CartPageState createState() => _CartPageState();
 }
 
@@ -81,6 +79,7 @@ class _CartPageState extends State<CartPage> {
 
     if (qrData != null) {
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (_) => AlertDialog(
           content: Column(
@@ -91,8 +90,8 @@ class _CartPageState extends State<CartPage> {
                 version: QrVersions.auto,
                 size: 200.0,
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Scan the QR code to proceed.',
                 textAlign: TextAlign.center,
               ),
@@ -102,8 +101,9 @@ class _CartPageState extends State<CartPage> {
       );
     } else {
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => const AlertDialog(
           content: Text('No QR code found. Please generate one first.'),
         ),
       );
@@ -114,19 +114,19 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFCC00),
-        title: Text('Cart'),
+        backgroundColor: const Color(0xFFFFCC00),
+        title: const Text('Cart'),
         centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _selectedItemsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No items found in the cart'));
+            return const Center(child: Text('No items found in the cart'));
           } else {
             totalBill = 0.0;
             for (int index = 0; index < snapshot.data!.length; index++) {
@@ -150,15 +150,15 @@ class _CartPageState extends State<CartPage> {
 
                        return Card(
                          elevation: 3,
-                         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                          child: ListTile(
-                           contentPadding: EdgeInsets.all(10),
+                           contentPadding: const EdgeInsets.all(10),
                            leading: imageUrl.isNotEmpty
                                ? Container(
                              decoration: BoxDecoration(
                                borderRadius: BorderRadius.circular(5.0),
                                border: Border.all(color: Colors.black),
-                               boxShadow: [
+                               boxShadow: const [
                                  BoxShadow(
                                    color: Colors.black12,
                                    blurRadius: 3,
@@ -177,15 +177,15 @@ class _CartPageState extends State<CartPage> {
                              ),
                            )
 
-                             : SizedBox(),
+                             : const SizedBox(),
                            title: Text(
                              itemData['itemName'],
-                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                            ),
                            subtitle: Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
                              children: [
-                               SizedBox(height: 4),
+                               const SizedBox(height: 4),
                                Text(
                                  'Price: ${itemData['price']}',
                                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
@@ -207,7 +207,7 @@ class _CartPageState extends State<CartPage> {
                                mainAxisAlignment: MainAxisAlignment.spaceAround,
                                children: [
                                  IconButton(
-                                   icon: Icon(
+                                   icon: const Icon(
                                      Icons.remove,
                                      color: Colors.white,
                                    ),
@@ -223,14 +223,14 @@ class _CartPageState extends State<CartPage> {
                                  ),
                                  Text(
                                    '$quantity',
-                                   style: TextStyle(
+                                   style: const TextStyle(
                                      fontSize: 16,
                                      color: Colors.white,
                                      fontWeight: FontWeight.bold,
                                    ),
                                  ),
                                  IconButton(
-                                   icon: Icon(
+                                   icon: const Icon(
                                      Icons.add,
                                      color: Colors.white,
                                    ),
@@ -253,20 +253,20 @@ class _CartPageState extends State<CartPage> {
                     },
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   color: Colors.grey[200],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Total Bill:',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                       Text(
                         'Rs.${totalBill.toStringAsFixed(2)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                           color: Colors.red,
@@ -275,7 +275,7 @@ class _CartPageState extends State<CartPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -290,13 +290,13 @@ class _CartPageState extends State<CartPage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Background color
-                    textStyle: TextStyle(fontWeight: FontWeight.bold), // Button text style
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold), // Button text style
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10), // Rounded corner radius
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
                   ),
-                  child: Text(
+                  child: const Text(
                     'Checkout',
                     style: TextStyle(fontSize: 18,color: Colors.white), // Text style
                   ),
@@ -363,7 +363,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   void onHomeTapped() {
-    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>SelectMachineForItems() ),);
+    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>const SelectMachineForItems() ),);
 
   }
 
@@ -377,13 +377,13 @@ class _CartPageState extends State<CartPage> {
   }
   void onProfileTapped() {
     // Ensure SharedPreferences has been initialized
-    if (_prefs == null) {
-      return;
-    }
+    // if (_prefs == null) {
+    //   return;
+    // }
 
     // Retrieve QR code data from SharedPreferences
-    String? qrData = _prefs!.getString('qrData');
-
+    String? qrData = _prefs.getString('qrData');
+//    String? qrData = _prefs!.getString('qrData');
     if (qrData != null) {
       showDialog(
         context: context,
@@ -400,12 +400,12 @@ class _CartPageState extends State<CartPage> {
                   version: QrVersions.auto,
                   size: 200.0,
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Scan the QR code to proceed.',
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -413,7 +413,7 @@ class _CartPageState extends State<CartPage> {
                     });
                     Navigator.pop(context); // Close the dialog
                   },
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             ),
@@ -424,7 +424,7 @@ class _CartPageState extends State<CartPage> {
       // If QR data is not found, show a message or handle accordingly
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => const AlertDialog(
           content: Text('No QR code found. Please generate one first.'),
         ),
       );
