@@ -1,12 +1,10 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vending_app/ui/MachineIntro/cart_page.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 
@@ -14,9 +12,10 @@ import 'package:flutter/services.dart';
 class OrderPage extends StatefulWidget {
   final List<String> selectedIds;
   final String machineId;
-  OrderPage({required this.selectedIds, required this.machineId});
+  const OrderPage({super.key, required this.selectedIds, required this.machineId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _OrderPageState createState() => _OrderPageState();
 }
 
@@ -26,7 +25,6 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
   late Future<List<Map<String, dynamic>>> _selectedItemsFuture;
   late SharedPreferences _prefs; // Add SharedPreferences instance
   final fireStore = FirebaseFirestore.instance.collection('Orders');
-  final GlobalKey _globalKey = GlobalKey();
   bool loading = false;
   final _formKey = GlobalKey<FormState>();
   final _cardNumberController = TextEditingController();
@@ -102,11 +100,12 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
             scale: _animation,
             child: Container(
               padding: const EdgeInsets.all(20.0),
+              // ignore: prefer_const_constructors
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Column(
+              child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.check_circle, size: 80.0, color: Colors.green),
@@ -147,11 +146,11 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
             maxChildSize: 0.9,
             builder: (_, controller) {
               return Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.black87,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 ),
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: SingleChildScrollView(
                   controller: controller,
                   child: Column(
@@ -160,12 +159,12 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.close),
+                            icon: const Icon(Icons.close),
                             onPressed: () {
                               Navigator.of(context).pop(); // Close the modal
                             },
                           ),
-                          Text(
+                          const Text(
                             'Payment Form',
                             style: TextStyle(
                               color: Colors.white,
@@ -173,10 +172,10 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(width: 40), // Placeholder for cross button alignment
+                          const SizedBox(width: 40), // Placeholder for cross button alignment
                         ],
                       ),
-                      SizedBox(height: 30.0),
+                      const SizedBox(height: 30.0),
 
                       Form(
                         key: _formKey,
@@ -184,17 +183,17 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                           children: <Widget>[
                             TextFormField(
                               controller: _cardNumberController,
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 labelText: 'Card Number',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
                                 hintText: '1234 5678 9012 3456',
-                                hintStyle: TextStyle(color: Colors.white38),
+                                hintStyle: const TextStyle(color: Colors.white38),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide: const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 filled: true,
@@ -215,23 +214,23 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                 return null;
                               },
                             ),
-                            SizedBox(height: 16.0),
+                            const SizedBox(height: 16.0),
                             Row(
                               children: <Widget>[
                                 Expanded(
                                   child: TextFormField(
                                     controller: _expiryDateController,
-                                    style: TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Colors.white),
                                     decoration: InputDecoration(
                                       labelText: 'Expiry Date',
-                                      labelStyle: TextStyle(color: Colors.white),
+                                      labelStyle: const TextStyle(color: Colors.white),
                                       hintText: 'MM/YY',
-                                      hintStyle: TextStyle(color: Colors.white38),
+                                      hintStyle: const TextStyle(color: Colors.white38),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12.0),
                                       ),
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.white),
+                                        borderSide: const BorderSide(color: Colors.white),
                                         borderRadius: BorderRadius.circular(12.0),
                                       ),
                                       filled: true,
@@ -270,21 +269,21 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                     },
                                   ),
                                 ),
-                                SizedBox(width: 16.0),
+                                const SizedBox(width: 16.0),
                                 Expanded(
                                   child: TextFormField(
                                     controller: _cvvController,
-                                    style: TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Colors.white),
                                     decoration: InputDecoration(
                                       labelText: 'CVV',
-                                      labelStyle: TextStyle(color: Colors.white),
+                                      labelStyle: const TextStyle(color: Colors.white),
                                       hintText: '123',
-                                      hintStyle: TextStyle(color: Colors.white38),
+                                      hintStyle: const TextStyle(color: Colors.white38),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(12.0),
                                       ),
                                       enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.white),
+                                        borderSide: const BorderSide(color: Colors.white),
                                         borderRadius: BorderRadius.circular(12.0),
                                       ),
                                       filled: true,
@@ -307,18 +306,18 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16.0),
+                            const SizedBox(height: 16.0),
                             TextFormField(
                               controller: _cardHolderNameController,
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                               decoration: InputDecoration(
                                 labelText: 'Card Holder Name',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.white),
+                                  borderSide: const BorderSide(color: Colors.white),
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                                 filled: true,
@@ -337,7 +336,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                 return null;
                               },
                             ),
-                            SizedBox(height: 30.0),
+                            const SizedBox(height: 30.0),
                             ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState?.validate() ?? false) {
@@ -347,22 +346,22 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                   _showPaymentDoneAnimation();
                                 }
                               },
-                              child: Text(
-                                'Pay Rs.${totalBill.toStringAsFixed(2)}',
-                                style: TextStyle(fontSize: 18.0, color: Colors.white),
-                              ),
                               style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
                                 backgroundColor: Colors.teal,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12.0),
                                 ),
                               ),
+                              child: Text(
+                                'Pay Rs.${totalBill.toStringAsFixed(2)}',
+                                style: const TextStyle(fontSize: 18.0, color: Colors.white),
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 30.0),
+                      const SizedBox(height: 30.0),
                     ],
                   ),
 
@@ -397,19 +396,19 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFFFFCC00),
-        title: Text('Order'),
+        backgroundColor: const Color(0xFFFFCC00),
+        title: const Text('Order'),
         centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _selectedItemsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No Order placed yet'));
+            return const Center(child: Text('No Order placed yet'));
           } else {
             totalBill = 0.0;
             for (int index = 0; index < snapshot.data!.length; index++) {
@@ -422,7 +421,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
             }
             return Column(
               children: [
-                Text(
+                const Text(
                   'ORDER SUMMARY',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
@@ -433,13 +432,12 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                       Map<String, dynamic> itemData = snapshot.data![index];
                       String itemId = widget.selectedIds[index];
                       int quantity = int.parse(itemQuantities[itemId] ?? '1');
-                      String imageUrl = itemData['imageUrl'] ?? '';
 
                       return Card(
                         elevation: 3,
-                        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -450,12 +448,12 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                   children: [
                                     Text(
                                       itemData['itemName'],
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       'Price: ${itemData['price']}',
                                       style: TextStyle(
@@ -478,7 +476,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                         color: Colors.grey[700],
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       'Total: ${int.parse(itemData['price']) * quantity}',
                                       style: TextStyle(
@@ -496,20 +494,20 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                     },
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   color: Colors.grey[200],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Total Bill:',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                       Text(
                         'Rs.${totalBill.toStringAsFixed(2)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                           color: Colors.red,
@@ -518,7 +516,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
                   //  Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>PaymentPage() ),);
@@ -529,13 +527,13 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Background color
-                    textStyle: TextStyle(fontWeight: FontWeight.bold), // Button text style
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold), // Button text style
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10), // Rounded corner radius
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
                   ),
-                  child: Text(
+                  child: const Text(
                     'PAY NOW',
                     style: TextStyle(fontSize: 18, color: Colors.white), // Text style
                   ),
@@ -601,7 +599,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
   void onHomeTapped() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => SelectMachineForItems()),
+      MaterialPageRoute(builder: (context) => const SelectMachineForItems()),
     );
   }
 
@@ -621,13 +619,13 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
 
   void onProfileTapped() {
     // Ensure SharedPreferences has been initialized
-    if (_prefs == null) {
-      return;
-    }
+    // if (_prefs == null) {
+    //   return;
+    // }
 
     // Retrieve QR code data from SharedPreferences
-    String? qrData = _prefs!.getString('qrData');
-
+    String? qrData = _prefs.getString('qrData');
+//    String? qrData = _prefs!.getString('qrData');
     if (qrData != null) {
       showDialog(
         context: context,
@@ -644,12 +642,12 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                   version: QrVersions.auto,
                   size: 200.0,
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Scan the QR code to proceed.',
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -657,7 +655,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                     });
                     Navigator.pop(context); // Close the dialog
                   },
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             ),
@@ -668,7 +666,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
       // If QR data is not found, show a message or handle accordingly
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => const AlertDialog(
           content: Text('No QR code found. Please generate one first.'),
         ),
       );
@@ -690,6 +688,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
     await _prefs.setString('qrData', qrData);
 
     showDialog(
+      // ignore: use_build_context_synchronously
       context: context,
       barrierDismissible: false, // Dialog cannot be dismissed by tapping outside
 
@@ -707,22 +706,22 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                 size: 200.0,
               ),
 
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Scan the QR code to proceed.',
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context); // Close the dialog
                   resetAndClearSelectedIds(machineId);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => SelectMachineForItems()),
+                    MaterialPageRoute(builder: (context) => const SelectMachineForItems()),
                   );
                 },
-                child: Text('Close'),
+                child: const Text('Close'),
 
               ),
             ],
