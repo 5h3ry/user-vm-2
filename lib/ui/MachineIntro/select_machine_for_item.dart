@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +48,8 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                 version: QrVersions.auto,
                 size: 200.0,
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Scan the QR code to proceed.',
                 textAlign: TextAlign.center,
               ),
@@ -58,7 +60,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
     } else {
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => const AlertDialog(
           content: Text('No QR code found. Please generate one first.'),
         ),
       );
@@ -72,18 +74,18 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: DrawerSide(),
+      drawer: const DrawerSide(),
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              backgroundColor: Color(0xffffcc00),
+              backgroundColor: const Color(0xffffcc00),
               automaticallyImplyLeading: false,
               title: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(Icons.menu),
+                    icon: const Icon(Icons.menu),
                     onPressed: () {
                       Scaffold.of(context).openDrawer();
                     },
@@ -115,7 +117,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
         },
         body: Column(
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: TextFormField(
@@ -125,7 +127,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
                 ),
                 onChanged: (String value) {
                   setState(() {});
@@ -138,15 +140,15 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error'));
+                    return const Center(child: Text('Error'));
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(child: Text('No machines found'));
+                    return const Center(child: Text('No machines found'));
                   }
 
                   return ListView.builder(
@@ -174,18 +176,18 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                           builder: (context, subSnapshot) {
                             if (subSnapshot.connectionState ==
                                 ConnectionState.waiting) {
-                              return SizedBox
+                              return const SizedBox
                                   .shrink(); // Hide the item if subcollection data is loading
                             }
 
                             if (subSnapshot.hasError) {
-                              return SizedBox
+                              return const SizedBox
                                   .shrink(); // Hide the item if there's an error
                             }
 
                             if (!subSnapshot.hasData ||
                                 subSnapshot.data!.docs.isEmpty) {
-                              return SizedBox
+                              return const SizedBox
                                   .shrink(); // Hide the item if subcollection is empty
                             }
 
@@ -263,7 +265,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
 
   void onHomeTapped() {
     Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (context) => SelectMachineForItems()));
+        MaterialPageRoute(builder: (context) => const SelectMachineForItems()));
   }
   void onCartTapped() {
     showDialog(
@@ -279,8 +281,8 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
             return true; // Allow dialog to be closed
           },
           child: AlertDialog(
-            title: Text("Select a Machine"),
-            content: Text("Please select a machine before proceeding to the cart."),
+            title: const Text("Select a Machine"),
+            content: const Text("Please select a machine before proceeding to the cart."),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -289,7 +291,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                   });
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text("OK"),
+                child: const Text("OK"),
               ),
             ],
           ),
@@ -312,8 +314,8 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
             return true; // Allow dialog to be closed
           },
           child: AlertDialog(
-            title: Text("Select a Machine"),
-            content: Text("Please select a machine before proceeding to the Order."),
+            title: const Text("Select a Machine"),
+            content: const Text("Please select a machine before proceeding to the Order."),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -322,7 +324,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                   });
                   Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text("OK"),
+                child: const Text("OK"),
               ),
             ],
           ),
@@ -356,12 +358,12 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                   version: QrVersions.auto,
                   size: 200.0,
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Scan the QR code to proceed.',
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -369,7 +371,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
                     });
                     Navigator.pop(context); // Close the dialog
                   },
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             ),
@@ -380,7 +382,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
       // If QR data is not found, show a message or handle accordingly
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => const AlertDialog(
           content: Text('No QR code found. Please generate one first.'),
         ),
       );
@@ -390,7 +392,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
   Widget buildMachineCard(String machineName, String location, String imageUrl,
       String machineId) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: ListTile(
         onTap: () {
           Navigator.push(
@@ -401,7 +403,7 @@ class _SelectMachineForItemsState extends State<SelectMachineForItems> {
         },
         title: Text(
           machineName,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text('Location: $location'),
         leading: imageUrl.isNotEmpty
