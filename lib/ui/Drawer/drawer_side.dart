@@ -7,9 +7,10 @@ import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:vending_app/ui/Pages/ProfilePage.dart';
 
 class DrawerSide extends StatefulWidget {
-  DrawerSide({Key? key}) : super(key: key);
+  const DrawerSide({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _DrawerSideState createState() => _DrawerSideState();
 }
 
@@ -24,7 +25,7 @@ class _DrawerSideState extends State<DrawerSide> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   late String _userEmail = "";
-  late String _userName = "User Name:";
+  late final String _userName = "User Name:";
 
   @override
   void initState() {
@@ -72,7 +73,7 @@ class _DrawerSideState extends State<DrawerSide> {
       child: ListTile(
         onTap: onTap,
         tileColor: backgroundColor ?? Colors.white,
-        trailing: Icon(Icons.arrow_forward_ios),
+        trailing: const Icon(Icons.arrow_forward_ios),
         leading: Icon(
           iconData ?? Icons.error,
           size: 28,
@@ -100,7 +101,7 @@ class _DrawerSideState extends State<DrawerSide> {
         child: ListView(
           children: [
             Container(
-              color: Color(0xffffcc00), // Set the background color to yellow
+              color: const Color(0xffffcc00), // Set the background color to yellow
               child: DrawerHeader(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -112,13 +113,13 @@ class _DrawerSideState extends State<DrawerSide> {
                         child: CircleAvatar(
                           backgroundImage: _image != null
                               ? FileImage(_image!)
-                              : AssetImage("assets/avatar.png")
+                              : const AssetImage("assets/avatar.png")
                           as ImageProvider,
                           radius: 42, // Adjusted size
                           backgroundColor: Colors.black12,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 20,
                       ),
                       Column(
@@ -127,7 +128,7 @@ class _DrawerSideState extends State<DrawerSide> {
                         children: [
                           Text(
                             userData.userName,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                             ),
@@ -150,7 +151,7 @@ class _DrawerSideState extends State<DrawerSide> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => SelectMachineForItems()));
+                        builder: (context) => const SelectMachineForItems()));
               },
             ),
             listTile(
@@ -161,8 +162,8 @@ class _DrawerSideState extends State<DrawerSide> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text("Select a Machine"),
-                      content: Text(
+                      title: const Text("Select a Machine"),
+                      content: const Text(
                           "Please select a machine before proceeding to the cart."),
                       actions: <Widget>[
                         TextButton(
@@ -172,7 +173,7 @@ class _DrawerSideState extends State<DrawerSide> {
                             // });
                             Navigator.of(context).pop();
                           },
-                          child: Text("OK"),
+                          child: const Text("OK"),
                         ),
                       ],
                     );
@@ -188,8 +189,8 @@ class _DrawerSideState extends State<DrawerSide> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text("Select a Machine"),
-                      content: Text(
+                      title: const Text("Select a Machine"),
+                      content: const Text(
                           "Please select a machine before proceeding to the Order."),
                       actions: <Widget>[
                         TextButton(
@@ -199,7 +200,7 @@ class _DrawerSideState extends State<DrawerSide> {
                             // });
                             Navigator.of(context).pop();
                           },
-                          child: Text("OK"),
+                          child: const Text("OK"),
                         ),
                       ],
                     );
@@ -212,16 +213,16 @@ class _DrawerSideState extends State<DrawerSide> {
               title: "My Profile",
               onTap: () {
                 Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()));
+                    MaterialPageRoute(builder: (context) => const ProfilePage()));
               },
             ),
-            SizedBox(
+            const SizedBox(
               height: 25,
             ),
             Container(
               height: 350,
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
