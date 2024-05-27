@@ -195,11 +195,18 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.exit_to_app_outlined,
                       title: "Log Out",
                       backgroundColor: Colors.white,
-                      onTap: () {
-                        Navigator.push(
+                      // onTap: () {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => LoginScreen()),
+                      //   );
+                      // },
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => LoginScreen()),
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
                         );
                       },
                     ),

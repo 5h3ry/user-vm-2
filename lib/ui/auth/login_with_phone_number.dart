@@ -19,23 +19,23 @@ class _LoginWithPhoneNumberState extends State<LoginWithPhoneNumber> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xffffcc00),
-        title: Text('Login') ,
+        backgroundColor: const Color(0xffffcc00),
+        title: const Text('Login') ,
       ),
       body:Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            SizedBox(height: 80,),
+            const SizedBox(height: 80,),
             TextFormField(
               keyboardType: TextInputType.number,
               controller: phoneNumberController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   hintText:  '+1 234 3455 234'
               ),
 
             ),
-            SizedBox(height: 80,),
+            const SizedBox(height: 80,),
 
             RoundButton(title: 'Login', loading: loading, onTap: () {
               setState(() {
@@ -74,7 +74,7 @@ class _LoginWithPhoneNumberState extends State<LoginWithPhoneNumber> {
                     });
                   });
             },
-            buttonColor: Color(0xFFFFCC00),
+            buttonColor: const Color(0xFFFFCC00),
             )
 
 

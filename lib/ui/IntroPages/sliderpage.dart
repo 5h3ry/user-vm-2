@@ -38,7 +38,6 @@ class _SliderPageState extends State<SliderPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           splashServices.isLogin(context).then((_) {
-            // Handle any additional logic after navigation if needed
           });
         },
         label: const Text('Start'),

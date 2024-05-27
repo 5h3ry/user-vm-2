@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Utils().toastMessage(value.user!.email.toString());
       Navigator.push(
           // context, MaterialPageRoute(builder: (context) => FabTabs(selectedIndex: 0)));
-          context, MaterialPageRoute(builder: (context) => SelectMachineForItems()));
+          context, MaterialPageRoute(builder: (context) => const SelectMachineForItems()));
       setState(() {
         loading = false;
       });
@@ -58,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         SystemNavigator.pop();
@@ -67,8 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Center(child: const Text('Login')),
-          backgroundColor: Color(0xffffcc00), // Set your desired color here
+          title: const Center(child: Text('Login')),
+          backgroundColor: const Color(0xffffcc00), // Set your desired color here
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -81,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 100,
                 width: 100,
               ),
-              SizedBox(height: 20,),
+              const SizedBox(height: 20,),
               Form(
                   key: _formKey,
                   child: Column(
@@ -95,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value!.isEmpty) {
                             return 'Enter email';
                           }
+                          return null;
                         },
                       ),
                       const SizedBox(
@@ -110,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value!.isEmpty) {
                             return 'Enter password';
                           }
+                          return null;
                         },
                       ),
                     ],
@@ -126,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     login();
                   }
                 },
-                buttonColor: Color(0xFFFFCC00), // Set your desired color here
+                buttonColor: const Color(0xFFFFCC00), // Set your desired color here
               ),
               const SizedBox(
                 height: 50,
@@ -134,24 +137,24 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have an account?"),
+                  const Text("Don't have an account?"),
                   TextButton(
                       onPressed: () {
                         Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => SignUpScreen())
+                            MaterialPageRoute(builder: (context) => const SignUpScreen())
                         );
                       },
-                      child: Text('Sign Up')
+                      child: const Text('Sign Up')
                   )
                 ],
               ),
-              SizedBox(height: 30,),
+              const SizedBox(height: 30,),
               InkWell(
                 onTap: (){
                   Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginWithPhoneNumber())
+                      MaterialPageRoute(builder: (context) => const LoginWithPhoneNumber())
                   );
                 },
                 child: Container(
@@ -162,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.black,
                       )
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Text('Login with phone'),
                   ),
                 ),

@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vending_app/ui/Drawer/FabTab.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
-import 'package:vending_app/ui/posts/post_screen.dart';
 import '../../utils/utils.dart';
 import '../../widgets/round_button.dart';
 
@@ -15,29 +13,30 @@ class VerifyCodeScreen extends StatefulWidget {
 }
 
 class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
+  // ignore: non_constant_identifier_names
   final VerificationCodeController = TextEditingController();
   bool loading = false;
   final auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFCC00),
+      backgroundColor: const Color(0xFFFFCC00),
       appBar: AppBar(
-        title: Text('Verify'),
+        title: const Text('Verify'),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 80,
             ),
             TextFormField(
               keyboardType: TextInputType.number,
               controller: VerificationCodeController,
-              decoration: InputDecoration(hintText: '6 digit code'),
+              decoration: const InputDecoration(hintText: '6 digit code'),
             ),
-            SizedBox(
+            const SizedBox(
               height: 80,
             ),
             RoundButton(
@@ -53,9 +52,10 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                   try {
                     await auth.signInWithCredential(credential);
                     Navigator.push(
+                        // ignore: use_build_context_synchronously
                         context,
                         MaterialPageRoute(
-                            builder: (context) => SelectMachineForItems()));
+                            builder: (context) => const SelectMachineForItems()));
                   } catch (e) {
                     setState(() {
                       loading = false;
@@ -63,7 +63,7 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
                     Utils().toastMessage(e.toString());
                   }
                 },
-              buttonColor: Color(0xFFFFCC00),
+              buttonColor: const Color(0xFFFFCC00),
             )
           ],
         ),
