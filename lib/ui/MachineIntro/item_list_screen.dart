@@ -7,12 +7,11 @@ import 'package:vending_app/ui/MachineIntro/cart_page.dart';
 import 'package:vending_app/ui/MachineIntro/orders.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vending_app/ui/Pages/ProfilePage.dart';
 
 class ItemListScreen extends StatefulWidget {
   final String machineId;
 
-  ItemListScreen({required this.machineId});
+  const ItemListScreen({super.key, required this.machineId});
 
   @override
   State<ItemListScreen> createState() => _ItemListScreenState();
@@ -57,8 +56,9 @@ class _ItemListScreenState extends State<ItemListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // ignore: prefer_const_constructors
         backgroundColor: Color(0xFFFFCC00),
-        title: Row(
+        title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Items List'),
@@ -86,7 +86,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(child: Text('No data found'));
+            return const Center(child: Text('No data found'));
           }
           return ListView(
             children: buildListTilesFromSubcollection(snapshot.data!),
@@ -150,7 +150,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
   void onHomeTapped() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => SelectMachineForItems()),
+      MaterialPageRoute(builder: (context) => const SelectMachineForItems()),
     );
   }
 
@@ -167,7 +167,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
       _currentIndex = 1; // Set currentIndex to 0
     });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Your cart is empty!')),
+        const SnackBar(content: Text('Your cart is empty!')),
       );
     }
   }
@@ -186,7 +186,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
     });
   ScaffoldMessenger.of(context).showSnackBar(
 
-  SnackBar(content: Text('Your cart is empty!\nNo Order Summary available')),
+  const SnackBar(content: Text('Your cart is empty!\nNo Order Summary available')),
   );
   }
   }
@@ -216,12 +216,12 @@ class _ItemListScreenState extends State<ItemListScreen> {
                   version: QrVersions.auto,
                   size: 200.0,
                 ),
-                SizedBox(height: 20),
-                Text(
+                const SizedBox(height: 20),
+                const Text(
                   'Scan the QR code to proceed.',
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
@@ -229,7 +229,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
                     });
                     Navigator.pop(context); // Close the dialog
                   },
-                  child: Text('Close'),
+                  child: const Text('Close'),
                 ),
               ],
             ),
@@ -240,7 +240,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
       // If QR data is not found, show a message or handle accordingly
       showDialog(
         context: context,
-        builder: (_) => AlertDialog(
+        builder: (_) => const AlertDialog(
           content: Text('No QR code found. Please generate one first.'),
         ),
       );
@@ -263,13 +263,13 @@ class _ItemListScreenState extends State<ItemListScreen> {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Your cart is empty!')),
+            const SnackBar(content: Text('Your cart is empty!')),
           );
         }
       },
       icon: Stack(
         children: [
-          Icon(
+          const Icon(
             Icons.shopping_bag_outlined,
             size: 30, // Adjust the size of the shopping bag icon
           ),
@@ -282,7 +282,7 @@ class _ItemListScreenState extends State<ItemListScreen> {
                 radius: 8, // Adjust the radius to decrease badge size
                 child: Text(
                   cartItemCount.toString(),
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 10, // Adjust the font size of the badge text
                   ),
@@ -409,15 +409,15 @@ class _ItemListScreenState extends State<ItemListScreen> {
 
         return Card(
           elevation: 3,
-          margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: ListTile(
-            contentPadding: EdgeInsets.all(14),
+            contentPadding: const EdgeInsets.all(14),
             leading: imageUrl.isNotEmpty
                 ? Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(color: Colors.black),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 3,
@@ -435,10 +435,10 @@ class _ItemListScreenState extends State<ItemListScreen> {
                 ),
               ),
             )
-                : SizedBox(width: 80, height: 80),
+                : const SizedBox(width: 80, height: 80),
             title: Text(
               itemName,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             ),
             subtitle: Text(
               'Price: $price\nQuantity: $quantity',
@@ -449,30 +449,30 @@ class _ItemListScreenState extends State<ItemListScreen> {
                 addToCart(id);
               },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
+                backgroundColor: WidgetStateProperty.all<Color>(
                   isQuantityZero ? Colors.grey : (isSelected ? Colors.red : Colors.green),
                 ),
-                textStyle: MaterialStateProperty.all<TextStyle>(
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                textStyle: WidgetStateProperty.all<TextStyle>(
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                 ),
-                shape: MaterialStateProperty.all<OutlinedBorder>(
+                shape: WidgetStateProperty.all<OutlinedBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                  EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                padding: WidgetStateProperty.all<EdgeInsetsGeometry>(
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 ),
               ),
               child: Text(
                 isSelected ? 'Remove from Cart' : 'Add to Cart',
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ),
         );
       } else {
-        return SizedBox();
+        return const SizedBox();
       }
     }).toList();
   }
