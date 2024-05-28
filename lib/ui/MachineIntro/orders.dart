@@ -261,7 +261,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                                         return 'Invalid';
                                       }
 
-                                      if (year <= 23) {
+                                      if (year <= 23 || year>=35) {
                                         return 'Invalid';
                                       }
 
@@ -356,6 +356,7 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                               child: Text(
                                 'Pay Rs.${totalBill.toStringAsFixed(2)}',
                                 style: const TextStyle(fontSize: 18.0, color: Colors.white),
+
                               ),
                             ),
                           ],

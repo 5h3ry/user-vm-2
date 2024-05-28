@@ -25,7 +25,7 @@ class _DrawerSideState extends State<DrawerSide> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   late String _userEmail = "";
-  late final String _userName = "User Name:";
+  late final String _userName = "User's Email:";
 
   @override
   void initState() {

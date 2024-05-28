@@ -28,7 +28,7 @@ class _LoginWithPhoneNumberState extends State<LoginWithPhoneNumber> {
           children: [
             const SizedBox(height: 80,),
             TextFormField(
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.phone,
               controller: phoneNumberController,
               decoration: const InputDecoration(
                   hintText:  '+1 234 3455 234'

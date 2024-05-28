@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 import 'package:vending_app/ui/Pages/AboutUs.dart';
+import 'package:vending_app/ui/Pages/refferFriend.dart';
 import 'package:vending_app/ui/auth/login_screen.dart';
 import '../Drawer/drawer_side.dart';
 
@@ -15,13 +16,14 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
   Color primaryColor = Colors.white;
   Color textColor = Colors.black;
-  Color scaffoldBackgroundColor = Color(0xffffcc00);
+  Color scaffoldBackgroundColor = const Color(0xffffcc00);
 
   late SharedPreferences _prefs;
   late String _imagePath;
@@ -113,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      drawer: DrawerSide(),
+      drawer: const DrawerSide(),
 
       body: Stack(
         children: [
@@ -126,10 +128,10 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 height: 450,
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                 decoration: BoxDecoration(
                   color: primaryColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
@@ -142,8 +144,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         Container(
                           width: 250,
                           height: 110,
-                          padding: EdgeInsets.only(left: 20),
-                          child: Row(
+                          padding: const EdgeInsets.only(left: 20),
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               // Your existing code
@@ -156,8 +158,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(
-                              text: 'User Name: ',
+                            const TextSpan(
+                              text: 'User\'s Email: ',
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             TextSpan(
@@ -168,12 +170,17 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
 
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
 
                     listTile(
                       icon: Icons.person_outline,
-                      title: "Refer A Friend",
-                      backgroundColor: Colors.white,
+                      title: "Refer Friend's",
+                      backgroundColor: Colors.white,onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const refferFriend()),
+                      );
+                    },
                     ),
                     listTile(
                       icon: Icons.add_chart,
@@ -182,15 +189,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => AboutUs()),
+                          MaterialPageRoute(builder: (context) => const AboutUs()),
                         );
                       },
                     ),
-                    listTile(
-                      icon: Icons.file_copy_outlined,
-                      title: "Help",
-                      backgroundColor: Colors.white,
-                    ),
+                    // listTile(
+                    //   icon: Icons.file_copy_outlined,
+                    //   title: "Help",
+                    //   backgroundColor: Colors.white,
+                    // ),
                     listTile(
                       icon: Icons.exit_to_app_outlined,
                       title: "Log Out",
@@ -205,8 +212,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () async {
                         await FirebaseAuth.instance.signOut();
                         Navigator.pushReplacement(
+                          // ignore: use_build_context_synchronously
                           context,
-                          MaterialPageRoute(builder: (context) => LoginScreen()),
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
                         );
                       },
                     ),
@@ -228,7 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: CircleAvatar(
                   backgroundImage: _image != null
                       ? FileImage(_image!)
-                      : AssetImage("assets/avatar.png") as ImageProvider,
+                      : const AssetImage("assets/avatar.png") as ImageProvider,
                   radius: 75, // Adjusted size
                   backgroundColor: Colors.black12,
                 ),
@@ -295,7 +303,7 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => SelectMachineForItems()));
+            builder: (context) => const SelectMachineForItems()));
   }
 
   void onCartTapped() {
@@ -303,9 +311,9 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select a Machine"),
+          title: const Text("Select a Machine"),
           content:
-          Text("Please select a machine before proceeding to the cart."),
+          const Text("Please select a machine before proceeding to the cart."),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -314,7 +322,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text("OK"),
+              child: const Text("OK"),
             ),
           ],
         );
@@ -327,9 +335,9 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select a Machine"),
+          title: const Text("Select a Machine"),
           content:
-          Text("Please select a machine before proceeding to the Order."),
+          const Text("Please select a machine before proceeding to the Order."),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -338,7 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text("OK"),
+              child: const Text("OK"),
             ),
           ],
         );
@@ -348,7 +356,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void onProfileTapped() {
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => ProfilePage()));
+        context, MaterialPageRoute(builder: (context) => const ProfilePage()));
   }
 
   Widget listTile({
@@ -359,14 +367,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }) {
     return Column(
       children: [
-        Divider(
+        const Divider(
           height: 1,
         ),
         ListTile(
           leading: Icon(icon ?? Icons.error),
           title: Text(title ?? ""),
           tileColor: backgroundColor ?? Colors.blue,
-          trailing: Icon(Icons.arrow_forward_ios),
+          trailing: const Icon(Icons.arrow_forward_ios),
           onTap: onTap,
         )
       ],
@@ -389,15 +397,15 @@ class _ProfilePageState extends State<ProfilePage> {
       items: [
         PopupMenuItem(
           child: ListTile(
-            leading: Icon(Icons.image),
-            title: Text('Select Image'),
+            leading: const Icon(Icons.image),
+            title: const Text('Select Image'),
             onTap: getImage,
           ),
         ),
         PopupMenuItem(
           child: ListTile(
-            leading: Icon(Icons.remove_circle),
-            title: Text('Remove Image'),
+            leading: const Icon(Icons.remove_circle),
+            title: const Text('Remove Image'),
             onTap: () {
               _removeImage();
               Navigator.pop(context);

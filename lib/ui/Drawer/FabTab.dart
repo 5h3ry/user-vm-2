@@ -2,7 +2,7 @@
 // import 'package:vending_app/ui/MachineIntro/select_machine_for_item.dart';
 // import 'package:vending_app/ui/Pages/HomePage.dart';
 // import 'package:vending_app/ui/Pages/MyCartPage.dart';
-// import 'package:vending_app/ui/Pages/OrderHistoryPage.dart';
+// import 'package:vending_app/ui/Pages/refferFriend.dart';
 // import 'package:vending_app/ui/Pages/ProfilePage.dart';
 // import 'package:vending_app/ui/posts/product_ui_widget.dart';
 //

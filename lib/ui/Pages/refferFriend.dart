@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-class AboutUs extends StatelessWidget {
-  const AboutUs({Key? key}) : super(key: key);
+import 'package:flutter/material.dart';
+
+class refferFriend extends StatelessWidget {
+  const refferFriend({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +12,7 @@ class AboutUs extends StatelessWidget {
         backgroundColor: const Color(0xffffcc00),
         centerTitle: true,
         title: const Text(
-          'About Us',
+          'Refer Friend\'s',
           style: TextStyle(
             color: Colors.black,
           ),
@@ -40,9 +42,9 @@ class AboutUs extends StatelessWidget {
             ),
             SizedBox(height: 16.0),
             Text(
-              'Older vending machines often only accept cash, causing inconvenience for customers who prefer cashless payments. Additionally, their outdated user interfaces can be confusing, and they are prone to security risks like theft and vandalism. To tackle these issues, we are adopting innovative solutions such as smart technologies, advanced payment methods, and user-friendly interfaces. The continuous development of advanced vending machines aims to provide a better experience for both customers and operators by offering more convenience and enhanced security.',
+              'It’s a win-win situation! Spread the word about our advanced vending machines and enjoy the benefits together. Start referring today and experience the future of convenient, secure, and smart vending solutions with your friends!',
               style: TextStyle(fontSize: 16.5),
-                textAlign: TextAlign.justify,
+              textAlign: TextAlign.justify,
             ),
             SizedBox(height: 16.0),
 
