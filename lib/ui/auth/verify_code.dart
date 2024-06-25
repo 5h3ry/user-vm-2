@@ -20,9 +20,10 @@ class _VerifyCodeScreenState extends State<VerifyCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFCC00),
+      //backgroundColor: const Color(0xFFFFCC00),
       appBar: AppBar(
         title: const Text('Verify'),
+        backgroundColor: Color(0xFFFFCC00),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
