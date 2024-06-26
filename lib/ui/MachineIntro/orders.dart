@@ -1,4 +1,10 @@
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' as stripe;
+import 'package:vending_app/home.dart';
+import 'package:vending_app/payment.dart';
+import 'package:vending_app/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,13 +32,6 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
   late SharedPreferences _prefs; // Add SharedPreferences instance
   final fireStore = FirebaseFirestore.instance.collection('Orders');
   bool loading = false;
-  final _formKey = GlobalKey<FormState>();
-  final _cardNumberController = TextEditingController();
-  final _expiryDateController = TextEditingController();
-  final _cvvController = TextEditingController();
-  final _cardHolderNameController = TextEditingController();
-
-
 
 
   Future<void> initializeSharedPreferences() async {
@@ -47,32 +46,12 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
     _selectedItemsFuture = _fetchSelectedItems();
     _initSharedPreferences(); // Initialize SharedPreferences
     initializeSharedPreferences();
-    _animationController = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    );
-
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
   }
   @override
-  void dispose() {
-    _animationController.dispose();
-    _cardNumberController.dispose();
-    _expiryDateController.dispose();
-    _cvvController.dispose();
-    _cardHolderNameController.dispose();
-   // _animationController.dispose();
-    super.dispose();
-  }
-  // Method to initialize SharedPreferences
   _initSharedPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     _loadItemQuantities(); // Load item quantities from SharedPreferences
   }
-
   // Method to load item quantities from SharedPreferences
   _loadItemQuantities() {
     for (String id in widget.selectedIds) {
@@ -84,298 +63,6 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
       }
     }
   }
-
-  void _showPaymentDoneAnimation() {
-    if (_animationController.isAnimating || _animationController.isCompleted) {
-      _animationController.reset();
-    }
-
-    _animationController.forward();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Center(
-          child: ScaleTransition(
-            scale: _animation,
-            child: Container(
-              padding: const EdgeInsets.all(20.0),
-              // ignore: prefer_const_constructors
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-              ),
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.check_circle, size: 80.0, color: Colors.green),
-                  SizedBox(height: 20),
-                  Text(
-                    'Payment Done',
-                    style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.green),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.of(context).pop();
-        _animationController.reset();
-      }
-      Navigator.of(context).pop(); // Close the modal
-      addSubCollection();
-    });
-
-  }
-
-  void _showPaymentForm(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top),
-          child: DraggableScrollableSheet(
-            initialChildSize: 0.6,
-            minChildSize: 0.3,
-            maxChildSize: 0.9,
-            builder: (_, controller) {
-              return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                padding: const EdgeInsets.all(16.0),
-                child: SingleChildScrollView(
-                  controller: controller,
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              Navigator.of(context).pop(); // Close the modal
-                            },
-                          ),
-                          const Text(
-                            'Payment Form',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(width: 40), // Placeholder for cross button alignment
-                        ],
-                      ),
-                      const SizedBox(height: 30.0),
-
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              controller: _cardNumberController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                labelText: 'Card Number',
-                                labelStyle: const TextStyle(color: Colors.white),
-                                hintText: '1234 5678 9012 3456',
-                                hintStyle: const TextStyle(color: Colors.white38),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(color: Colors.white),
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                filled: true,
-                                fillColor: Colors.black54,
-                              ),
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(16),
-                                _CardNumberInputFormatter(),
-                              ],
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your card number';
-                                } else if (value.replaceAll(' ', '').length != 16) {
-                                  return 'Card number must be 16 digits';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 16.0),
-                            Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _expiryDateController,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'Expiry Date',
-                                      labelStyle: const TextStyle(color: Colors.white),
-                                      hintText: 'MM/YY',
-                                      hintStyle: const TextStyle(color: Colors.white38),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12.0),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(color: Colors.white),
-                                        borderRadius: BorderRadius.circular(12.0),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.black54,
-                                    ),
-                                    keyboardType: TextInputType.datetime,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      _ExpiryDateInputFormatter(),
-                                      LengthLimitingTextInputFormatter(5),
-                                    ],
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter the expiry date';
-                                      } else if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(value)) {
-                                        return 'Enter a valid expiry date';
-                                      }
-
-                                      var parts = value.split('/');
-                                      var month = int.tryParse(parts[0]);
-                                      var year = int.tryParse(parts[1]);
-
-                                      if (month == null || year == null) {
-                                        return 'Invalid expiry date format';
-                                      }
-
-                                      if (month < 1 || month > 12) {
-                                        return 'Invalid';
-                                      }
-
-                                      if (year <= 23 || year>=35) {
-                                        return 'Invalid';
-                                      }
-
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16.0),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: _cvvController,
-                                    style: const TextStyle(color: Colors.white),
-                                    decoration: InputDecoration(
-                                      labelText: 'CVV',
-                                      labelStyle: const TextStyle(color: Colors.white),
-                                      hintText: '123',
-                                      hintStyle: const TextStyle(color: Colors.white38),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12.0),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(color: Colors.white),
-                                        borderRadius: BorderRadius.circular(12.0),
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.black54,
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      LengthLimitingTextInputFormatter(3),
-                                    ],
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter the CVV';
-                                      } else if (value.length != 3) {
-                                        return 'CVV must be 3 digits';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16.0),
-                            TextFormField(
-                              controller: _cardHolderNameController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                labelText: 'Card Holder Name',
-                                labelStyle: const TextStyle(color: Colors.white),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(color: Colors.white),
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                                filled: true,
-                                fillColor: Colors.black54,
-                              ),
-                              keyboardType: TextInputType.name,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]'))
-                              ],
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter the card holder\'s name';
-                                } else if (!RegExp(r'^[a-zA-Z\s]{3,24}$').hasMatch(value)) {
-                                  return 'Invalid Name';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 30.0),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState?.validate() ?? false) {
-                                  if (_animationController.isAnimating || _animationController.isCompleted) {
-                                    _animationController.reset();
-                                  }
-                                  _showPaymentDoneAnimation();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 15.0),
-                                backgroundColor: Colors.teal,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.0),
-                                ),
-                              ),
-                              child: Text(
-                                'Pay Rs.${totalBill.toStringAsFixed(2)}',
-                                style: const TextStyle(fontSize: 18.0, color: Colors.white),
-
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 30.0),
-                    ],
-                  ),
-
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-
   Future<List<Map<String, dynamic>>> _fetchSelectedItems() async {
     List<Map<String, dynamic>> selectedItemsData = [];
     await Future.forEach(widget.selectedIds, (String id) async {
@@ -520,9 +207,17 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                  //  Navigator.pushReplacement(context,MaterialPageRoute(builder: (context) =>PaymentPage() ),);
-
-                    _showPaymentForm(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(
+                          machineId: widget.machineId,
+                          selectedIds: widget.selectedIds,
+                          totalBill: totalBill,
+                        ),
+                      ),
+                    );
+                   // _showPaymentForm(context);
 
                    // addSubCollection(); // Call addSubCollection to handle everything including QR code generation
                   },
@@ -534,8 +229,8 @@ class _OrderPageState extends State<OrderPage>with SingleTickerProviderStateMixi
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30), // Button padding
                   ),
-                  child: const Text(
-                    'PAY NOW',
+                  child: Text(
+                    'PAY Rs.${totalBill.toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 18, color: Colors.white), // Text style
                   ),
                 ),
